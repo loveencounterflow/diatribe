@@ -24,23 +24,7 @@ GUY                       = require 'guy'
 CLK                       = require '@clack/prompts'
 PATH                      = require 'node:path'
 mark                      = ( ref ) -> urge reverse bold " #{ref} "
-
-
-#===========================================================================================================
-### TAINT Later to be extended so we pass in parameters, not messages ###
-class Dialog_error              extends Error
-class Overrun_error             extends Dialog_error
-class Dulicate_ref_error        extends Dialog_error
-
-#===========================================================================================================
-### TAINT Later to be extended so we pass in parameters, not messages ###
-class Dialog_failure
-  constructor: ( @message ) -> undefined
-
-class Misstep_failure       extends Dialog_failure
-class Underrun_failure      extends Dialog_failure
-class Overrun_failure       extends Dialog_failure
-class Duplicate_ref_failure extends Dialog_failure
+E                         = require './errors'
 
 
 #===========================================================================================================
@@ -83,7 +67,7 @@ class Programmatic_dialog
     GUY.props.def @, '_failures',
       enumerable:   false
       configurable: false
-      get:          -> ( d for d in @_act_steps when d instanceof Dialog_failure )
+      get:          -> ( d for d in @_act_steps when d instanceof E.Dialog_failure )
     #.......................................................................................................
     return undefined
 
@@ -92,8 +76,8 @@ class Programmatic_dialog
     @_pc++
     if ( not ( key = @_exp_keys[ @_pc ] ? null )? ) or ( not ( R = @_exp_steps[ key ] ? null )? )
       message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
-      @_fail ref, new Overrun_failure message
-      throw new Overrun_error message
+      @_fail ref, new E.Overrun_failure message
+      throw new E.Overrun_error message
     return R
 
   #---------------------------------------------------------------------------------------------------------
@@ -108,8 +92,8 @@ class Programmatic_dialog
     #.......................................................................................................
     if @cfg.unique_refs and Reflect.has @results, ref
       message = "duplicate ref: #{ref}"
-      @_fail ref, new Duplicate_ref_failure message
-      throw new Dulicate_ref_error message
+      @_fail ref, new E.Duplicate_ref_failure message
+      throw new E.Dulicate_ref_error message
     #.......................................................................................................
     [ exp_key, value, ] = @_next ref
     @results[ ref ]     = value
@@ -117,7 +101,7 @@ class Programmatic_dialog
     if act_key is exp_key
       @_act_steps[ ref ] = act_key
     else
-      @_act_steps[ ref ] = new Misstep_failure "step##{@_pc}: act #{rpr act_key}, exp #{rpr exp_key}"
+      @_act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_key}, exp #{rpr exp_key}"
     return await GUY.async.defer -> value
 
   #---------------------------------------------------------------------------------------------------------
@@ -130,7 +114,7 @@ class Programmatic_dialog
   finish: ( P... ) ->
     #### `dlg.finish()` should be called after the simulated dialog has ben run to issue an  ####
     return true if @_is_finished() or @_is_overrun()
-    @_fail '$finish', new Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
+    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
     return false
 
   #---------------------------------------------------------------------------------------------------------
