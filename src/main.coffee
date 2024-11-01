@@ -26,41 +26,6 @@ PATH                      = require 'node:path'
 mark                      = ( ref ) -> urge reverse bold " #{ref} "
 
 
-# #===========================================================================================================
-# class Clack
-
-#   #---------------------------------------------------------------------------------------------------------
-#   intro_outro: ->
-#     CLK.intro "create-my-app"
-#     value = await CLK.text { message: "press CTRL+C to continue", }
-#     if CLK.isCancel value
-#       CLK.cancel "Operation cancelled."
-#       # process.exit 0
-#     CLK.outro "You're all set!"
-#     return null
-
-#   #---------------------------------------------------------------------------------------------------------
-#   text: ->
-#     cfg =
-#       message:      "What is your name?"
-#       placeholder:  "Not sure"
-#       initialValue: "Jim"
-#       validate:     ( value ) ->
-#         # debug 'Ω___1', rpr value
-#         return "Value is required!" if value.length is 0
-#         return null
-#     name = await CLK.text cfg
-#     info "Ω___2 your name is #{rpr name}"
-#     return null
-
-
-###
-
-Errors entail failures
-
-
-###
-
 #===========================================================================================================
 ### TAINT Later to be extended so we pass in parameters, not messages ###
 class Dialog_error              extends Error
