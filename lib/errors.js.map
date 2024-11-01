@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "",
+  "sourceRoot": "",
+  "sources": [
+    "../src/errors.coffee"
+  ],
+  "names": [],
+  "mappings": "AAA4G;EAAA;;EAEtG,IAAC,CAAA,eAAP,MAAA,aAAA,QAAyC,MAAzC,CAAA;;EACM,IAAC,CAAA,gBAAP,MAAA,cAAA,QAAyC,IAAC,CAAA,aAA1C,CAAA;;EACM,IAAC,CAAA,qBAAP,MAAA,mBAAA,QAAyC,IAAC,CAAA,aAA1C,CAAA,EAJ4G;;;;EAQtG,IAAC,CAAA,iBAAP,MAAA,eAAA;IACE,WAAa,QAAA,CAAA;MAAE,IAAC,CAAA;MAAa;IAAhB;;EADf;;EAGM,IAAC,CAAA,kBAAP,MAAA,gBAAA,QAAqC,IAAC,CAAA,eAAtC,CAAA;;EACM,IAAC,CAAA,mBAAP,MAAA,iBAAA,QAAqC,IAAC,CAAA,eAAtC,CAAA;;EACM,IAAC,CAAA,kBAAP,MAAA,gBAAA,QAAqC,IAAC,CAAA,eAAtC,CAAA;;EACM,IAAC,CAAA,wBAAP,MAAA,sBAAA,QAAqC,IAAC,CAAA,eAAtC,CAAA;AAd4G",
+  "sourcesContent": [
+    "#===========================================================================================================\n### TAINT Later to be extended so we pass in parameters, not messages ###\nclass @Dialog_error              extends Error\nclass @Overrun_error             extends @Dialog_error\nclass @Dulicate_ref_error        extends @Dialog_error\n\n#===========================================================================================================\n### TAINT Later to be extended so we pass in parameters, not messages ###\nclass @Dialog_failure\n  constructor: ( @message ) -> undefined\n\nclass @Misstep_failure       extends @Dialog_failure\nclass @Underrun_failure      extends @Dialog_failure\nclass @Overrun_failure       extends @Dialog_failure\nclass @Duplicate_ref_failure extends @Dialog_failure\n"
+  ]
+}
