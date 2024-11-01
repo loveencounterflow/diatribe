@@ -31,6 +31,25 @@ E                         = require './errors'
 class Interactive_dialog
 
   #---------------------------------------------------------------------------------------------------------
+  constructor: ( steps ) ->
+    @cfg        = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
+    @_pc        = -1
+    @results    = {}
+    return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _record: ( cfg, value ) ->
+    @_pc++
+    ref = cfg?.ref ? "$q#{@_pc + 1}"
+    #.......................................................................................................
+    if @cfg.unique_refs and Reflect.has @results, ref
+      message = "duplicate ref: #{ref}"
+      throw new E.Dulicate_ref_error message
+    #.......................................................................................................
+    @results[ ref ]     = value
+    return value
+
+  #---------------------------------------------------------------------------------------------------------
   ctrlc: ( value ) ->
     # debug 'Ω___3', rpr value
     if CLK.isCancel value
@@ -39,12 +58,12 @@ class Interactive_dialog
     return value
 
   #---------------------------------------------------------------------------------------------------------
-  intro:        ( cfg ) -> @ctrlc await CLK.intro       cfg
-  outro:        ( cfg ) -> @ctrlc await CLK.outro       cfg
-  confirm:      ( cfg ) -> @ctrlc await CLK.confirm     cfg
-  text:         ( cfg ) -> @ctrlc await CLK.text        cfg
-  select:       ( cfg ) -> @ctrlc await CLK.select      cfg
-  multiselect:  ( cfg ) -> @ctrlc await CLK.multiselect cfg
+  intro:        ( cfg ) ->                @ctrlc await CLK.intro       cfg
+  outro:        ( cfg ) ->                @ctrlc await CLK.outro       cfg
+  confirm:      ( cfg ) -> @_record cfg,  @ctrlc await CLK.confirm     cfg
+  text:         ( cfg ) -> @_record cfg,  @ctrlc await CLK.text        cfg
+  select:       ( cfg ) -> @_record cfg,  @ctrlc await CLK.select      cfg
+  multiselect:  ( cfg ) -> @_record cfg,  @ctrlc await CLK.multiselect cfg
   get_spinner:  ( cfg ) -> CLK.spinner()
   finish:               -> null
 
