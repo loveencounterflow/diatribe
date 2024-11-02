@@ -51,7 +51,6 @@ class Interactive_dialog
 
   #---------------------------------------------------------------------------------------------------------
   ctrlc: ( value ) ->
-    # debug 'Ω___3', rpr value
     if CLK.isCancel value
       CLK.cancel "Operation cancelled."
       @process_exit 0
