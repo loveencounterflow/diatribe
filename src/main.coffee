@@ -31,7 +31,7 @@ E                         = require './errors'
 class Interactive_dialog
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( steps ) ->
+  constructor: ->
     @cfg        = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
     @_pc        = -1
     @results    = {}
