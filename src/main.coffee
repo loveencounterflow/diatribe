@@ -74,25 +74,25 @@ class Interactive_dialog
 class Programmatic_dialog
 
   #---------------------------------------------------------------------------------------------------------
-  constructor: ( steps ) ->
+  constructor: ( exp_steps ) ->
     @cfg        = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
-    @_exp_steps = steps
-    @_exp_keys  = Object.keys @_exp_steps
+    @exp_steps  = exp_steps
+    @_exp_keys  = Object.keys @exp_steps
     @_pc        = -1
-    @_act_steps = {}
+    @act_steps  = {}
     @results    = {}
     #.......................................................................................................
     GUY.props.def @, '_failures',
       enumerable:   false
       configurable: false
-      get:          -> ( d for d in @_act_steps when d instanceof E.Dialog_failure )
+      get:          -> ( d for d in @act_steps when d instanceof E.Dialog_failure )
     #.......................................................................................................
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   _next: ( ref ) ->
     @_pc++
-    if ( not ( key = @_exp_keys[ @_pc ] ? null )? ) or ( not ( R = @_exp_steps[ key ] ? null )? )
+    if ( not ( key = @_exp_keys[ @_pc ] ? null )? ) or ( not ( R = @exp_steps[ key ] ? null )? )
       message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
       @_fail ref, new E.Overrun_failure message
       throw new E.Overrun_error message
@@ -100,7 +100,7 @@ class Programmatic_dialog
 
   #---------------------------------------------------------------------------------------------------------
   _fail: ( ref, failure ) ->
-    @_act_steps[ ref ] = failure
+    @act_steps[ ref ] = failure
     @_failures.push failure
     return null
 
@@ -117,9 +117,9 @@ class Programmatic_dialog
     @results[ ref ]     = value
     #.......................................................................................................
     if act_key is exp_key
-      @_act_steps[ ref ] = act_key
+      @act_steps[ ref ] = act_key
     else
-      @_act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_key}, exp #{rpr exp_key}"
+      @act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_key}, exp #{rpr exp_key}"
     return await GUY.async.defer -> value
 
   #---------------------------------------------------------------------------------------------------------
