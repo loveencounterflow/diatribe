@@ -27,5 +27,6 @@
 ## To Do
 
 * **[–]** documentation
+* **[–]** test for proper ordering of steps
 
 
