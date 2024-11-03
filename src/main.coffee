@@ -105,21 +105,22 @@ class Programmatic_dialog
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _step: ( act_ref, cfg ) ->
-    ref = cfg?.ref ? "$q#{@_pc + 2}"
+  _step: ( dlg_name, cfg ) ->
+    act_ref = cfg?.ref ? "$q#{@_pc + 2}"
     #.......................................................................................................
-    if @cfg.unique_refs and Reflect.has @results, ref
-      message = "duplicate ref: #{ref}"
-      @_fail ref, new E.Duplicate_ref_failure message
+    if @cfg.unique_refs and Reflect.has @results, act_ref
+      message = "duplicate ref: #{act_ref}"
+      @_fail act_ref, new E.Duplicate_ref_failure message
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
-    [ exp_ref, value, ] = @_next ref
-    @results[ ref ]     = value
+    [ exp_ref, value, ] = @_next act_ref
+    @results[ act_ref ] = value
+    debug 'Ω__1', { dlg_name, act_ref, exp_ref, }
     #.......................................................................................................
     if act_ref is exp_ref
-      @act_steps[ ref ] = act_ref
+      @act_steps[ act_ref ] = dlg_name
     else
-      @act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
+      @act_steps[ act_ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
     return await GUY.async.defer -> value
 
   #---------------------------------------------------------------------------------------------------------
@@ -136,13 +137,13 @@ class Programmatic_dialog
     return false
 
   #---------------------------------------------------------------------------------------------------------
-  intro:        ( cfg ) -> null
-  outro:        ( cfg ) -> null
-  confirm:      ( cfg ) -> await @_step 'confirm',      cfg
-  text:         ( cfg ) -> await @_step 'text',         cfg
-  select:       ( cfg ) -> await @_step 'select',       cfg
-  multiselect:  ( cfg ) -> await @_step 'multiselect',  cfg
-  get_spinner:          -> { start: ( -> ), stop: ( -> ), }
+  intro:        ( step_cfg )  -> null
+  outro:        ( step_cfg )  -> null
+  confirm:      ( step_cfg )  -> await @_step ( dlg_name = 'confirm'     ),  step_cfg
+  text:         ( step_cfg )  -> await @_step ( dlg_name = 'text'        ),  step_cfg
+  select:       ( step_cfg )  -> await @_step ( dlg_name = 'select'      ),  step_cfg
+  multiselect:  ( step_cfg )  -> await @_step ( dlg_name = 'multiselect' ),  step_cfg
+  get_spinner:                -> { start: ( -> ), stop: ( -> ), }
 
   #---------------------------------------------------------------------------------------------------------
   process_exit: ( code ) ->
