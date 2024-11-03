@@ -77,7 +77,7 @@ class Programmatic_dialog
   constructor: ( exp_steps ) ->
     @cfg        = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
     @exp_steps  = exp_steps
-    @_exp_keys  = Object.keys @exp_steps
+    @_exp_refs  = Object.keys @exp_steps
     @_pc        = -1
     @act_steps  = {}
     @results    = {}
@@ -92,8 +92,8 @@ class Programmatic_dialog
   #---------------------------------------------------------------------------------------------------------
   _next: ( ref ) ->
     @_pc++
-    if ( not ( key = @_exp_keys[ @_pc ] ? null )? ) or ( not ( R = @exp_steps[ key ] ? null )? )
-      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
+    if ( not ( ref = @_exp_refs[ @_pc ] ? null )? ) or ( not ( R = @exp_steps[ ref ] ? null )? )
+      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_refs.length}"
       @_fail ref, new E.Overrun_failure message
       throw new E.Overrun_error message
     return R
@@ -105,7 +105,7 @@ class Programmatic_dialog
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _step: ( act_key, cfg ) ->
+  _step: ( act_ref, cfg ) ->
     ref = cfg?.ref ? "$q#{@_pc + 2}"
     #.......................................................................................................
     if @cfg.unique_refs and Reflect.has @results, ref
@@ -113,26 +113,26 @@ class Programmatic_dialog
       @_fail ref, new E.Duplicate_ref_failure message
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
-    [ exp_key, value, ] = @_next ref
+    [ exp_ref, value, ] = @_next ref
     @results[ ref ]     = value
     #.......................................................................................................
-    if act_key is exp_key
-      @act_steps[ ref ] = act_key
+    if act_ref is exp_ref
+      @act_steps[ ref ] = act_ref
     else
-      @act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_key}, exp #{rpr exp_key}"
+      @act_steps[ ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
     return await GUY.async.defer -> value
 
   #---------------------------------------------------------------------------------------------------------
   _count_act_steps: -> @_pc + 1
-  _is_finished:     -> @_count_act_steps() is @_exp_keys.length
-  # _is_underrun:     -> @_count_act_steps() <  @_exp_keys.length
-  _is_overrun:      -> @_count_act_steps() >  @_exp_keys.length
+  _is_finished:     -> @_count_act_steps() is @_exp_refs.length
+  # _is_underrun:     -> @_count_act_steps() <  @_exp_refs.length
+  _is_overrun:      -> @_count_act_steps() >  @_exp_refs.length
 
   #---------------------------------------------------------------------------------------------------------
   finish: ( P... ) ->
     #### `dlg.finish()` should be called after the simulated dialog has ben run to issue an  ####
     return true if @_is_finished() or @_is_overrun()
-    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_keys.length}"
+    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_refs.length}"
     return false
 
   #---------------------------------------------------------------------------------------------------------
