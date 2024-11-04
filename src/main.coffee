@@ -75,12 +75,12 @@ class Programmatic_dialog
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( exp_steps ) ->
-    @cfg        = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
-    @exp_steps  = exp_steps
-    @_exp_refs  = Object.keys @exp_steps
-    @_pc        = -1
-    @act_steps  = {}
-    @results    = {}
+    @cfg            = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
+    @exp_steps      = exp_steps
+    @_exp_step_list = @_compile_steps()
+    @_pc            = -1
+    @act_steps      = {}
+    @results        = {}
     #.......................................................................................................
     GUY.props.def @, '_failures',
       enumerable:   false
@@ -90,13 +90,20 @@ class Programmatic_dialog
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
+  _compile_steps: ->
+    R = []
+    for ref, s of @exp_steps
+      R.push Object.freeze { exp_ref: ref, exp_dlg_name: s.dlg_name, answer: s.answer, }
+    return Object.freeze R
+
+  #---------------------------------------------------------------------------------------------------------
   _next: ( ref ) ->
     @_pc++
-    if ( not ( ref = @_exp_refs[ @_pc ] ? null )? ) or ( not ( R = @exp_steps[ ref ] ? null )? )
-      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_refs.length}"
+    if @_pc >= @_exp_step_list.length
+      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_step_list.length}"
       @_fail ref, new E.Overrun_failure message
       throw new E.Overrun_error message
-    return R
+    return @_exp_step_list[ @_pc ]
 
   #---------------------------------------------------------------------------------------------------------
   _fail: ( ref, failure ) ->
@@ -105,35 +112,37 @@ class Programmatic_dialog
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _step: ( dlg_name, cfg ) ->
-    act_ref = cfg?.ref ? "$q#{@_pc + 2}"
+  _step: ( dlg_name, dlg_cfg ) ->
+    act_ref = dlg_cfg.ref ? "$q#{@_pc + 2}"
     #.......................................................................................................
     if @cfg.unique_refs and Reflect.has @results, act_ref
       message = "duplicate ref: #{act_ref}"
       @_fail act_ref, new E.Duplicate_ref_failure message
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
-    [ exp_ref, value, ] = @_next act_ref
-    @results[ act_ref ] = value
-    debug 'Ω__1', { dlg_name, act_ref, exp_ref, }
+    { exp_ref
+      exp_dlg_name
+      answer          } = @_next act_ref
+    @results[ act_ref ] = answer
+    debug 'Ω___2', { dlg_name, act_ref, exp_ref, exp_dlg_name, answer, }
     #.......................................................................................................
     if act_ref is exp_ref
       @act_steps[ act_ref ] = dlg_name
     else
       @act_steps[ act_ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
-    return await GUY.async.defer -> value
+    return await GUY.async.defer -> answer
 
   #---------------------------------------------------------------------------------------------------------
   _count_act_steps: -> @_pc + 1
-  _is_finished:     -> @_count_act_steps() is @_exp_refs.length
-  # _is_underrun:     -> @_count_act_steps() <  @_exp_refs.length
-  _is_overrun:      -> @_count_act_steps() >  @_exp_refs.length
+  _is_finished:     -> @_count_act_steps() is @_exp_step_list.length
+  # _is_underrun:     -> @_count_act_steps() <  @_exp_step_list.length
+  _is_overrun:      -> @_count_act_steps() >  @_exp_step_list.length
 
   #---------------------------------------------------------------------------------------------------------
   finish: ( P... ) ->
     #### `dlg.finish()` should be called after the simulated dialog has ben run to issue an  ####
     return true if @_is_finished() or @_is_overrun()
-    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_refs.length}"
+    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_step_list.length}"
     return false
 
   #---------------------------------------------------------------------------------------------------------
