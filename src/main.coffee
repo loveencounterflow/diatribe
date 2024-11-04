@@ -76,8 +76,7 @@ class Programmatic_dialog
   #---------------------------------------------------------------------------------------------------------
   constructor: ( exp_steps ) ->
     @cfg            = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
-    @exp_steps      = exp_steps
-    @_exp_step_list = @_compile_steps()
+    @exp_steps      = @_compile_steps exp_steps
     @_pc            = -1
     @act_steps      = {}
     @results        = {}
@@ -90,20 +89,24 @@ class Programmatic_dialog
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
-  _compile_steps: ->
+  _compile_steps: ( exp_steps ) ->
+    ### TAINT validate ###
     R = []
-    for ref, s of @exp_steps
-      R.push Object.freeze { exp_ref: ref, exp_dlg_name: s.dlg_name, answer: s.answer, }
+    for { exp_ref, exp_modal, answer, } in exp_steps
+      exp_ref    ?= null
+      exp_modal  ?= null
+      answer     ?= null
+      R.push Object.freeze { exp_ref, exp_modal, answer, }
     return Object.freeze R
 
   #---------------------------------------------------------------------------------------------------------
   _next: ( ref ) ->
     @_pc++
-    if @_pc >= @_exp_step_list.length
-      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@_exp_step_list.length}"
+    if @_pc >= @exp_steps.length
+      message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@exp_steps.length}"
       @_fail ref, new E.Overrun_failure message
       throw new E.Overrun_error message
-    return @_exp_step_list[ @_pc ]
+    return @exp_steps[ @_pc ]
 
   #---------------------------------------------------------------------------------------------------------
   _fail: ( ref, failure ) ->
@@ -112,7 +115,7 @@ class Programmatic_dialog
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _step: ( dlg_name, dlg_cfg ) ->
+  _step: ( modal, dlg_cfg ) ->
     act_ref = dlg_cfg.ref ? "$q#{@_pc + 2}"
     #.......................................................................................................
     if @cfg.unique_refs and Reflect.has @results, act_ref
@@ -121,37 +124,37 @@ class Programmatic_dialog
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
     { exp_ref
-      exp_dlg_name
+      exp_modal
       answer          } = @_next act_ref
     @results[ act_ref ] = answer
-    debug 'Ω___2', { dlg_name, act_ref, exp_ref, exp_dlg_name, answer, }
+    debug 'Ω___2', { modal, act_ref, exp_ref, exp_modal, answer, }
     #.......................................................................................................
     if act_ref is exp_ref
-      @act_steps[ act_ref ] = dlg_name
+      @act_steps[ act_ref ] = modal
     else
       @act_steps[ act_ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
     return await GUY.async.defer -> answer
 
   #---------------------------------------------------------------------------------------------------------
   _count_act_steps: -> @_pc + 1
-  _is_finished:     -> @_count_act_steps() is @_exp_step_list.length
-  # _is_underrun:     -> @_count_act_steps() <  @_exp_step_list.length
-  _is_overrun:      -> @_count_act_steps() >  @_exp_step_list.length
+  _is_finished:     -> @_count_act_steps() is @exp_steps.length
+  # _is_underrun:     -> @_count_act_steps() <  @exp_steps.length
+  _is_overrun:      -> @_count_act_steps() >  @exp_steps.length
 
   #---------------------------------------------------------------------------------------------------------
   finish: ( P... ) ->
     #### `dlg.finish()` should be called after the simulated dialog has ben run to issue an  ####
     return true if @_is_finished() or @_is_overrun()
-    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@_exp_step_list.length}"
+    @_fail '$finish', new E.Underrun_failure "finished too early: act #{@_count_act_steps()} exp #{@exp_steps.length}"
     return false
 
   #---------------------------------------------------------------------------------------------------------
   intro:        ( step_cfg )  -> null
   outro:        ( step_cfg )  -> null
-  confirm:      ( step_cfg )  -> await @_step ( dlg_name = 'confirm'     ),  step_cfg
-  text:         ( step_cfg )  -> await @_step ( dlg_name = 'text'        ),  step_cfg
-  select:       ( step_cfg )  -> await @_step ( dlg_name = 'select'      ),  step_cfg
-  multiselect:  ( step_cfg )  -> await @_step ( dlg_name = 'multiselect' ),  step_cfg
+  confirm:      ( step_cfg )  -> await @_step ( modal = 'confirm'     ),  step_cfg
+  text:         ( step_cfg )  -> await @_step ( modal = 'text'        ),  step_cfg
+  select:       ( step_cfg )  -> await @_step ( modal = 'select'      ),  step_cfg
+  multiselect:  ( step_cfg )  -> await @_step ( modal = 'multiselect' ),  step_cfg
   get_spinner:                -> { start: ( -> ), stop: ( -> ), }
 
   #---------------------------------------------------------------------------------------------------------
