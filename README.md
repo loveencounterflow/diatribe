@@ -123,19 +123,19 @@ dlg.results: { want_pizza: true, want_pineapple: true }
 
 In order to test for these two control paths, we will pass in an explicit `Programmatic_dialog` instance
 instead of using the implicitly instantiated `Interactive_dialog` instance (this is the part that is called
-`dependency injection` because we 'inject'—pass in—a value that our program depends on—works with).
+`dependency injection` because we 'inject' (pass in) a value that our program depends on).
 
 In order to instantiate a `Programmatic_dialog`, we have to give it a list of steps that we expect it to go
 through; we can only model a single control flow with a given run of the interview, meaning that in order to
 obtain complete test coverage in our toy example, we must write two tests (or three if we wanted to test for
 the second question as well—which does not, however, affect control flow).
 
-Each step needs to be an object with the three properties `exp_ref`, `exp_modal` and `answer`.
-`exp_ref` must match the value `ref` property of the dialog concerned, in our example either `'want_pizza'`
-or `'want_pineapple'`. `exp_modal` should be set to the name of the method that repesents the respective
-dialog, which is `'confirm'`—our name for a `Yes`/`No` question—in both cases. Lastly, `answer` should
-represent the value that would be returned by the respective dialog if the user responded according to the
-control flow we want to model. So, our `dlg` object can be obtained as follows:
+Each step needs to be an object with the three properties `ref`, `modal` and `answer`. `ref` must match the
+value `ref` property of the dialog concerned, in our example either `'want_pizza'` or `'want_pineapple'`.
+`modal` should be set to the name of the method that repesents the respective dialog, which is
+`'confirm'`—our name for a `Yes`/`No` question—in both cases. Lastly, `answer` should represent the value
+that would be returned by the respective dialog if the user responded according to the control flow we want
+to model. So, our `dlg` object can be obtained as follows:
 
 <!-- ################################################################################################### -->
 
