@@ -94,24 +94,24 @@ run_my_dialog = ( dlg = null ) ->
 Maybe next time.
 ```
 
-* Inspecting the `Interactive_dialog::results` property tells you what the answer to that single question
-  was; you may choose to do whatever you program is meant to do either *during* the interview, using the
-  individual return values of each dialog, or *after* the interview, using the
-  `Interactive_dialog::results` property:
+Inspecting the **`Interactive_dialog::results`** property tells you what the answer to that single question
+was; you may choose to do whatever you program is meant to do either *during* the interview, using the
+individual return values of each dialog, or *after* the interview, using the `Interactive_dialog::results`
+property:
 
-  ```
-  dlg.results: { want_pizza: false }
-  ```
+```
+dlg.results: { want_pizza: false }
+```
 
-* In addition to `Interactive_dialog::results`, there's `Interactive_dialog::act_steps` which lists
-  the steps that were `act`ually taken during the conversation:
+In addition to `Interactive_dialog::results`, there's **`Interactive_dialog::act_steps`** which lists
+the steps that were `act`ually taken during the conversation:
 
-  ```
-  dlg.act_steps: [ { ref: 'want_pizza', modal: 'confirm', answer: false } ]
-  ```
+```
+dlg.act_steps: [ { ref: 'want_pizza', modal: 'confirm', answer: false } ]
+```
 
-  In this case there was only a single question asked, so there's just a single entry in the `act_steps`
-  list.
+In this case there was only a single question asked, so there's just a single entry in the `act_steps`
+list.
 
 
 **2)** The only other control flow is caused by answering `Yes` to the first question:
