@@ -9,8 +9,8 @@
   - [Purpose](#purpose)
   - [Method and Example](#method-and-example)
     - [Scripting a Dialog](#scripting-a-dialog)
-      - [Running with Interactive Dialog](#running-with-interactive-dialog)
-      - [Running with Programmatic Dialog](#running-with-programmatic-dialog)
+    - [Running with Interactive Dialog](#running-with-interactive-dialog)
+    - [Running with Programmatic Dialog](#running-with-programmatic-dialog)
   - [Notes](#notes)
   - [To Do](#to-do)
 
@@ -91,7 +91,7 @@ run_my_dialog = ( dlg = null ) ->
   return dlg
 ```
 
-#### Running with Interactive Dialog
+### Running with Interactive Dialog
 
 
 **1)** In this very simple example, there are only two possible control flow paths, depending on whether the
@@ -153,7 +153,7 @@ dlg.act_steps: [
   { ref: 'want_pineapple',  modal: 'confirm', answer: false } ]
 ```
 
-#### Running with Programmatic Dialog
+### Running with Programmatic Dialog
 
 In order to test for these two control paths, we will pass in an explicit `Programmatic_dialog` instance
 instead of using the implicitly instantiated `Interactive_dialog` instance (this is the part that is called
