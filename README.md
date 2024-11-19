@@ -43,9 +43,10 @@ child process running the CLI program. That option is fraught with a number of t
 however; also, it's frequently not so much the functionality of user interaction *as such* that we want to
 test, that is, we can quickly convince ourselves that our chosen CLI dialog tool reacts correctly to, say,
 pressing <kbd>arrow-up</kbd> and <kbd>arrow-down</kbd> or that it accepts user text inputs and so on.
+
 Rather, we want to guide our program to walk down each possible control flow path and assert that side
-effects such as creation of folders and so on has been successfully performed. What is needed, therefore, is
-a way to run our program along a prescribed path with fidelity but without halting to wait for user
+effects (such as creation of folders and so on) have been successfully performed. What is needed, therefore,
+is a way to run our program along a prescribed path with fidelity but without halting to wait for user
 interaction, and this is what Diatribe enables.
 
 Diatribe offers two classes, `Interactive_dialog` and `Programmatic_dialog` that are expected to be used, in
@@ -196,5 +197,6 @@ dlg.results: { want_pizza: false }
 * **[–]** documentation
 * **[–]** test for proper ordering of steps
 * **[–]** test for wrong refs
+* **[–]** implement `set()` or similar to set the value of a given result identified by its `ref`
 
 
