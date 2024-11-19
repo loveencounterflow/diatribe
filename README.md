@@ -7,6 +7,10 @@
 
 - [Diatribe](#diatribe)
   - [Purpose](#purpose)
+  - [XXXXXXX](#xxxxxxx)
+    - [XXXXXXX](#xxxxxxx-1)
+      - [XXXXXXX](#xxxxxxx-2)
+      - [XXXXXXX](#xxxxxxx-3)
   - [Notes](#notes)
   - [To Do](#to-do)
 
@@ -49,6 +53,10 @@ effects (such as creation of folders and so on) have been successfully performed
 is a way to run our program along a prescribed path with fidelity but without halting to wait for user
 interaction, and this is what Diatribe enables.
 
+## XXXXXXX
+
+### XXXXXXX
+
 Diatribe offers two classes, `Interactive_dialog` and `Programmatic_dialog` that are expected to be used, in
 dependency-injection style, as (optional) arguments to a function that runs the user dialog. Using Diatribe
 takes the following general shape:
@@ -83,6 +91,9 @@ run_my_dialog = ( dlg = null ) ->
   return dlg
 ```
 
+#### XXXXXXX
+
+
 **1)** In this very simple example, there are only two possible control flow paths, depending on whether the
  answer to the first question is `No` or `Yes`. If it's `No`, a message is printed and no further
  questions are asked:
@@ -111,10 +122,11 @@ dlg.act_steps: [ { ref: 'want_pizza', modal: 'confirm', answer: false } ]
 ```
 
 In this case there was only a single question asked, so there's just a single entry in the `act_steps`
-list.
+list. This property will become important for testing, see below.
 
 
-**2)** The only other control flow is caused by answering `Yes` to the first question:
+**2)** The only other control flow in this simple example is caused by answering `Yes` to the first
+question:
 
 ```
 ◇  Do you want pizza?
@@ -127,11 +139,21 @@ You want pizza. Good!
 │  Yes
 ```
 
-The `Interactive_dialog::results` property reflects the additional result:
+The **`Interactive_dialog::results`** property reflects the additional result:
 
 ```
 dlg.results: { want_pizza: true, want_pineapple: true }
 ```
+
+And we can see the additional step in the **`Interactive_dialog::act_steps`** property:
+
+```
+dlg.act_steps: [
+  { ref: 'want_pizza',      modal: 'confirm', answer: true },
+  { ref: 'want_pineapple',  modal: 'confirm', answer: false } ]
+```
+
+#### XXXXXXX
 
 In order to test for these two control paths, we will pass in an explicit `Programmatic_dialog` instance
 instead of using the implicitly instantiated `Interactive_dialog` instance (this is the part that is called
