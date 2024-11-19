@@ -7,10 +7,10 @@
 
 - [Diatribe](#diatribe)
   - [Purpose](#purpose)
-  - [XXXXXXX](#xxxxxxx)
-    - [XXXXXXX](#xxxxxxx-1)
-      - [XXXXXXX](#xxxxxxx-2)
-      - [XXXXXXX](#xxxxxxx-3)
+  - [Method and Example](#method-and-example)
+    - [Scripting a Dialog](#scripting-a-dialog)
+      - [Running with Interactive Dialog](#running-with-interactive-dialog)
+      - [Running with Programmatic Dialog](#running-with-programmatic-dialog)
   - [Notes](#notes)
   - [To Do](#to-do)
 
@@ -53,9 +53,9 @@ effects (such as creation of folders and so on) have been successfully performed
 is a way to run our program along a prescribed path with fidelity but without halting to wait for user
 interaction, and this is what Diatribe enables.
 
-## XXXXXXX
+## Method and Example
 
-### XXXXXXX
+### Scripting a Dialog
 
 Diatribe offers two classes, `Interactive_dialog` and `Programmatic_dialog` that are expected to be used, in
 dependency-injection style, as (optional) arguments to a function that runs the user dialog. Using Diatribe
@@ -91,7 +91,7 @@ run_my_dialog = ( dlg = null ) ->
   return dlg
 ```
 
-#### XXXXXXX
+#### Running with Interactive Dialog
 
 
 **1)** In this very simple example, there are only two possible control flow paths, depending on whether the
@@ -153,7 +153,7 @@ dlg.act_steps: [
   { ref: 'want_pineapple',  modal: 'confirm', answer: false } ]
 ```
 
-#### XXXXXXX
+#### Running with Programmatic Dialog
 
 In order to test for these two control paths, we will pass in an explicit `Programmatic_dialog` instance
 instead of using the implicitly instantiated `Interactive_dialog` instance (this is the part that is called
