@@ -83,26 +83,38 @@ run_my_dialog = ( dlg = null ) ->
   return dlg
 ```
 
-In this very simple example, there are only two possible control flow paths, depending on whether the answer
-to the first question is `No` or `Yes`. If it's `No`, a message is printed and no further questions are
-asked:
+1) In this very simple example, there are only two possible control flow paths, depending on whether the
+   answer to the first question is `No` or `Yes`. If it's `No`, a message is printed and no further
+   questions are asked:
 
-```
-│
-◇  Do you want pizza?
-│  No
-Maybe next time.
-```
+  ```
+  │
+  ◇  Do you want pizza?
+  │  No
+  Maybe next time.
+  ```
 
-Inspecting the `Interactive_dialog::results` property tells you what the answer to that single question was;
-you may choose to do whatever you program is meant to do either *during* the interview, using the individual
-return values of each dialog, or *after* the interview, using the `Interactive_dialog::results` property:
+  * Inspecting the `Interactive_dialog::results` property tells you what the answer to that single question
+    was; you may choose to do whatever you program is meant to do either *during* the interview, using the
+    individual return values of each dialog, or *after* the interview, using the
+    `Interactive_dialog::results` property:
 
-```
-dlg.results: { want_pizza: false }
-```
+    ```
+    dlg.results: { want_pizza: false }
+    ```
 
-The only other control flow is caused by answering `Yes` to the first question:
+  * In addition to `Interactive_dialog::results`, there's `Interactive_dialog::act_steps` which lists
+    the steps that were `act`ually taken during the conversation:
+
+    ```
+    dlg.act_steps: [ { ref: 'want_pizza', modal: 'confirm', answer: false } ]
+    ```
+
+    In this case there was only a single question asked, so there's just a single entry in the `act_steps`
+    list.
+
+
+2) The only other control flow is caused by answering `Yes` to the first question:
 
 ```
 ◇  Do you want pizza?
