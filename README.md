@@ -25,11 +25,15 @@ When program control flow depends on user inputs the question arises: *how to te
 with the console for correctness of program execution?*
 
 For example, in a given CLI, one step of the dialog might be `Do you want to create a folder for images
-(Yes/No)?`. If the user answers `No`, then the next question might be to input a name for that folder and
-test whether it's viable (typically, whether that filename is not taken or represents an existing but empty
-folder); if the user answers `Yes`, that step can be skipped. As a result, we already have two distinct
-control flow paths to test for. This can become more complex quite quickly when several chained choices
-multiply the number of paths a Q&nbsp;\&&nbsp;A session can take.
+(Yes/No)?`. If
+
+* the user answers `No`, then the next question might be
+  * to input a name for that folder and test whether it's viable (typically, whether that filename is not
+    taken or represents an existing but empty folder); if
+* the user, however, answers `Yes`, that step can be skipped.
+
+As a result, we already have two distinct control flow paths to test for. This can become more complex quite
+quickly when several chained choices multiply the number of paths a Q&nbsp;\&&nbsp;A session can take.
 
 In very simple cases, tests can be done manually by running the program several times and
 give answers manually, but that quickly becomes prone to errors and omissions when possible control flows
