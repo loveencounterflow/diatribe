@@ -25,25 +25,26 @@ When program control flow depends on user inputs the question arises: *how to te
 with the console for correctness of program execution?*
 
 For example, in a given CLI, one step of the dialog might be `Do you want to create a folder for images
-(Yes/No)?`. If
+(Yes/No)?`.
 
-* the user answers `No`, then the next question might be
+* If the user answers `No`, then the next question might be
   * to input a name for that folder and test whether it's viable (typically, whether that filename is not
-    taken or represents an existing but empty folder); if
-* the user, however, answers `Yes`, that step can be skipped.
+    taken or represents an existing but empty folder)
+* If the user, however, answers `Yes`, that step can be skipped.
 
 As a result, we already have two distinct control flow paths to test for. This can become more complex quite
-quickly when several chained choices multiply the number of paths a Q&nbsp;\&&nbsp;A session can take.
+quickly when several chained choices multiply the number of paths a Q&nbsp;\&&nbsp;A session can take. In
+very simple cases, tests can be done manually by running the program several times and give answers
+manually, but that quickly becomes prone to errors and omissions when possible control flows become more
+numerous.
 
-In very simple cases, tests can be done manually by running the program several times and
-give answers manually, but that quickly becomes prone to errors and omissions when possible control flows
-become more numerous.
-
-One possible way to automate testing the user interaction and program reactions would be to simulate
-keyboard inputs in a child process running the CLI program. That option is fraught with a number of
-technical difficulties, however; also, it's frequently not so much the functionality of user interaction
-that we want to test but rather the resulting program control flow and the effects given inputs have on the
-program and the environment.
+One way to automate testing the user interaction and program reactions is to simulate keyboard inputs in a
+child process running the CLI program. That option is fraught with a number of technical difficulties,
+however; also, it's frequently not so much the functionality of user interaction *as such* that we want to
+test, that is, we can quickly convince ourselves that our chosen CLI dialog tool reacts correctly to, say,
+pressing <kbd>arrow-up</kbd> and <kbd>arrow-down</kbd> or that it accepts user text inputs and so on.
+Rather, we want to guide our program to walk down each possible control flow path and assert that side
+effects such as creation of folders and so on has been successfully performed.
 
 Another way is to not actually print questions and await user input, but assume that the toolkit responsible
 for the display will work OK (something we can establish independently in a manual and generalized manner),
