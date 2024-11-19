@@ -44,12 +44,9 @@ however; also, it's frequently not so much the functionality of user interaction
 test, that is, we can quickly convince ourselves that our chosen CLI dialog tool reacts correctly to, say,
 pressing <kbd>arrow-up</kbd> and <kbd>arrow-down</kbd> or that it accepts user text inputs and so on.
 Rather, we want to guide our program to walk down each possible control flow path and assert that side
-effects such as creation of folders and so on has been successfully performed.
-
-Another way is to not actually print questions and await user input, but assume that the toolkit responsible
-for the display will work OK (something we can establish independently in a manual and generalized manner),
-and that what we really should run tests against is the program control flow (resulting from a set of user
-inputs) and side effects (like a folder getting created) thereof, and this is what Diatribe enables.
+effects such as creation of folders and so on has been successfully performed. What is needed, therefore, is
+a way to run our program along a prescribed path with fidelity but without halting to wait for user
+interaction, and this is what Diatribe enables.
 
 Diatribe offers two classes, `Interactive_dialog` and `Programmatic_dialog` that are expected to be used, in
 dependency-injection style, as (optional) arguments to a function that runs the user dialog. Using Diatribe
