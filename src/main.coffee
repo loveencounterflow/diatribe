@@ -78,25 +78,29 @@ class Programmatic_dialog
     @cfg            = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
     @exp_steps      = @_compile_steps exp_steps
     @_pc            = -1
-    @act_steps      = {}
+    @act_steps      = []
     @results        = {}
     #.......................................................................................................
     GUY.props.def @, '_failures',
       enumerable:   false
       configurable: false
-      get:          -> ( d for d in @act_steps when d instanceof E.Dialog_failure )
+      get:          -> ( step for step in @act_steps when step instanceof E.Dialog_failure )
     #.......................................................................................................
     return undefined
 
   #---------------------------------------------------------------------------------------------------------
   _compile_steps: ( exp_steps ) ->
-    ### TAINT validate ###
+    ### TAINT validate properly ###
+    # unless Array.isArray exp_steps
+    #   throw new Error "expected `exp_steps` to be a list, got #{rpr exp_steps}"
+    #.......................................................................................................
     R = []
-    for { exp_ref, exp_modal, answer, } in exp_steps
-      exp_ref    ?= null
-      exp_modal  ?= null
-      answer     ?= null
-      R.push Object.freeze { exp_ref, exp_modal, answer, }
+    for { ref, modal, answer, } in exp_steps
+      ref    ?= null
+      modal  ?= null
+      answer ?= null
+      ### TAINT use method to instantiate ###
+      R.push Object.freeze { ref, modal, answer, }
     return Object.freeze R
 
   #---------------------------------------------------------------------------------------------------------
@@ -110,8 +114,7 @@ class Programmatic_dialog
 
   #---------------------------------------------------------------------------------------------------------
   _fail: ( ref, failure ) ->
-    @act_steps[ ref ] = failure
-    @_failures.push failure
+    @act_steps.push failure
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -123,17 +126,15 @@ class Programmatic_dialog
       @_fail act_ref, new E.Duplicate_ref_failure message
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
-    { exp_ref
-      exp_modal
-      answer          } = @_next act_ref
-    @results[ act_ref ] = answer
-    debug 'Ω___2', { modal, act_ref, exp_ref, exp_modal, answer, }
+    exp_step            = @_next act_ref
+    @results[ act_ref ] = exp_step.answer
     #.......................................................................................................
-    if act_ref is exp_ref
-      @act_steps[ act_ref ] = modal
+    if act_ref is exp_step.ref
+      ### TAINT use method to instantiate step ###
+      @act_steps.push { ref: act_ref, modal, answer: exp_step.answer, }
     else
-      @act_steps[ act_ref ] = new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_ref}"
-    return await GUY.async.defer -> answer
+      @_fail act_ref, new E.Misstep_failure "step##{@_pc}: act #{rpr act_ref}, exp #{rpr exp_step.ref}"
+    return await GUY.async.defer -> exp_step.answer
 
   #---------------------------------------------------------------------------------------------------------
   _count_act_steps: -> @_pc + 1
