@@ -25,6 +25,7 @@ CLK                       = require '@clack/prompts'
 PATH                      = require 'node:path'
 mark                      = ( ref ) -> urge reverse bold " #{ref} "
 E                         = require './errors'
+invalid                   = Symbol 'invalid'
 
 
 #===========================================================================================================
@@ -74,12 +75,18 @@ class Interactive_dialog
 class Programmatic_dialog
 
   #---------------------------------------------------------------------------------------------------------
+  @invalid = invalid
+
+  #---------------------------------------------------------------------------------------------------------
   constructor: ( exp_steps ) ->
     @cfg            = Object.freeze { unique_refs: true, } ### TAINT make configurable ###
     @exp_steps      = @_compile_steps exp_steps
     @_pc            = -1
     @act_steps      = []
     @results        = {}
+    # @finished       = false
+    @overrun        = false
+    @invalid        = invalid
     #.......................................................................................................
     GUY.props.def @, '_failures',
       enumerable:   false
@@ -109,16 +116,19 @@ class Programmatic_dialog
     if @_pc >= @exp_steps.length
       message = "emergency halt, running too long: act #{@_count_act_steps()} exp #{@exp_steps.length}"
       @_fail ref, new E.Overrun_failure message
-      throw new E.Overrun_error message
+      return null
+      # throw new E.Overrun_error message
     return @exp_steps[ @_pc ]
 
   #---------------------------------------------------------------------------------------------------------
   _fail: ( ref, failure ) ->
     @act_steps.push failure
+    @overrun = true if failure instanceof E.Overrun_failure
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _step: ( modal, dlg_cfg ) ->
+    return ( await GUY.async.defer -> invalid ) if @overrun
     act_ref = dlg_cfg.ref ? "$q#{@_pc + 2}"
     #.......................................................................................................
     if @cfg.unique_refs and Reflect.has @results, act_ref
@@ -127,6 +137,8 @@ class Programmatic_dialog
       throw new E.Dulicate_ref_error message
     #.......................................................................................................
     exp_step            = @_next act_ref
+    return ( await GUY.async.defer -> invalid ) if @overrun
+    #.......................................................................................................
     @results[ act_ref ] = exp_step.answer
     #.......................................................................................................
     if act_ref is exp_step.ref
@@ -166,4 +178,4 @@ class Programmatic_dialog
 
 
 #===========================================================================================================
-module.exports = { Programmatic_dialog, Interactive_dialog, errors: E, }
+module.exports = { Programmatic_dialog, Interactive_dialog, errors: E, invalid, }
