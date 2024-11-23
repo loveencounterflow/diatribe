@@ -237,5 +237,11 @@ dlg.results: { want_pizza: false }
 * **[–]** test for proper ordering of steps
 * **[–]** test for wrong refs
 * **[–]** implement `set()` or similar to set the value of a given result identified by its `ref`
+* **[+]** do not throw error on overrun; instead, set flag that instructs potential next dialog step to
+  insert an `Overrun_failure()` into `dlg.act_steps` and return a special sentinel value `dlg.invalid` (a
+  private symbol); all subsequent calls to a dialog method will do nothing but return `dlg.invalid`
+  * **[–]** add documentation that when writing a conversation, one should always check for the return value
+    being `dlg.invalid`
+* **[–]** do throw error when user tries to run `dlg` instance more than once
 
 
